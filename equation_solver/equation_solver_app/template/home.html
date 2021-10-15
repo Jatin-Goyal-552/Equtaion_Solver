@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content=
+			"width=device-width, initial-scale=1.0">
+	
+	<title>
+		Draw with the mouse in a HTML5 canvas
+	</title>
+	<!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.min.js" integrity="sha256-WVsM3xrcqyuFNF3W1qtIKbHFsD0977nDQA8DCMp1zCw=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.dom.min.js" integrity="sha256-2/3R3NV5zryj0fDjD3cDh+SNiWQ/TJiMVZzAo5FrhiU=" crossorigin="anonymous"></script>
+	<!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+	<style>
+		* {
+			overflow: hidden;
+		}
+		body {
+			text-align: center;
+		}
+		h1 {
+			color: black;
+		}
+	</style>
+</head>
+
+<body style="background-color: #232323;">
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+		<div class="container">
+		  <a class="navbar-brand" href="#">
+			  Equation Solver
+			<!-- <img src="https://placeholder.pics/svg/150x50/888888/EEE/Logo" alt="..." height="36"> -->
+		  </a>
+		  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		  </button>
+		  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav ms-auto">
+				{% if user %}
+				<li class="nav-item">
+					<a class="nav-link active" aria-current="page" href="#" style="font-size: 18px;">Hii {{name}}</a>
+				  </li>
+				  {% endif %}
+			  <li class="nav-item">
+				<a class="nav-link active" aria-current="page" href="#" style="font-size: 18px;">Home</a>
+			  </li>
+			  {% if user %}
+			  <li class="nav-item">
+				<a class="nav-link" href="{% url 'logout' %}" style="font-size: 18px;">Logout</a>
+			  </li> 
+			  {% else %}
+			 
+			  <li class="nav-item">
+				<a class="nav-link" href="{% url 'register' %}" style="font-size: 18px;">Register</a>
+			  </li>
+			  <li class="nav-item">
+				<a class="nav-link" href="{% url 'login' %}" style="font-size: 18px;">Login</a>
+			  </li>
+			{% endif %}
+			  <!-- <li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+				  Dropdown
+				</a> -->
+				<!-- <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+				  <li><a class="dropdown-item" href="#">Action</a></li>
+				  <li><a class="dropdown-item" href="#">Another action</a></li>
+				  <li>
+					<hr class="dropdown-divider">
+				  </li>
+				  <li><a class="dropdown-item" href="#">Something else here</a></li>
+				</ul> -->
+			  <!-- </li> -->
+			</ul>
+		  </div>
+		</div>
+	  </nav>
+	  
+	  <!-- Page Content -->
+	  <!-- <div class="container">
+		<h1 class="mt-4">Logo Nav by Start Bootstrap</h1>
+		<p>The logo in the navbar is now a default Bootstrap feature in Bootstrap! Make sure to set the height
+		  of the logo within the HTML or using CSS. For best results, use an SVG image as your logo.</p>
+	  </div> -->
+	  <div class="container" style="margin-top: 3%;">
+	
+	
+	<button type="button" onclick="start_pen()"  style="padding: 11px 15px;
+	font-size: 18px;border-color: aliceblue;
+	border-radius: 18px;    background-color: #0a0a0c;color:white;">Pen</button>
+	<button type="button" onclick="start_eraser()"  style="padding: 11px 15px;
+	font-size: 18px;border-color: aliceblue;
+	border-radius: 18px;    background-color: #d371d3;color:white;">Eraser</button>
+	<button type="button" onclick="erase()"  style="padding: 11px 15px;
+	font-size: 18px;border-color: aliceblue;
+	border-radius: 18px;    background-color: #ca4928;color:white;">Clear Canvas</button>
+	<button type="button" onclick="download()"  style="padding: 11px 15px;
+	font-size: 18px;border-color: aliceblue;
+	border-radius: 18px;    background-color: #3eb127;color:white;">Download Canvas</button>
+	<a id="link"></a>
+	<hr>
+	<div>
+        
+<canvas id="canvas" style="border:6px solid #0955ff;"></canvas>
+</div>	
+<hr>
+<!-- <a href="#" onClick="submit_pixels();" >Click to Autofill</a> -->
+<form id="myform" action="" method="post">
+    {% csrf_token %}
+    <input id="data1" type="hidden" name="data" value="">
+    
+</form>
+<!-- <h1>Output :- {{ans}}</h1>  -->
+<button type="button" onclick="predict();" style="padding: 11px 15px;
+font-size: 18px;border-color: aliceblue;
+border-radius: 18px;    background-color: #2b2d84;color:white;">Calculate</button>
+<!-- <a href="#" onClick="predict();" >Click to Autofill2</a> -->
+<div style="margin-top: 30px; color:white;font-size: 24px;">
+	<div>
+	  Expression:
+	  <span id=operation-container></span>
+	</div>
+
+	<div style="margin-top: 10px">
+	  Answer:
+	  <span id=solution-container></span>
+	</div>
+  </div>
+
+  </div>
+  <!-- <form method="post" id="myForm" action="">
+	{% csrf_token %}
+</form> -->
+<!-- <a href="javascript:;" onClick="submit_pixels()">Button</a> -->
+</body>
+<script>
+// wait for the content of the window element
+// to load, then performs the operations.
+// This is considered best practice.
+window.addEventListener('load', ()=>{
+		
+	resize(); // Resizes the canvas once the window loads
+	document.addEventListener('mousedown', startPainting);
+	document.addEventListener('mouseup', stopPainting);
+	document.addEventListener('mousemove', sketch);
+	window.addEventListener('resize', resize);
+});
+	
+const canvas = document.querySelector('#canvas');
+// Context for the canvas for 2 dimensional operations
+const ctx = canvas.getContext('2d');
+
+
+// Resizes the canvas to the available size of the window.
+function resize(){
+ctx.canvas.width = 1200;
+ctx.canvas.height = 300;
+ctx.fillStyle = "rgb(255,255,255)";
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+	
+// Stores the initial position of the cursor
+let coord = {x:0 , y:0};
+
+// This is the flag that we are going to use to
+// trigger drawing
+let paint = false;
+let pen=true;
+// Updates the coordianates of the cursor when
+// an event e is triggered to the coordinates where
+// the said event is triggered.
+function getPosition(event){
+coord.x = event.clientX - canvas.offsetLeft;
+coord.y = event.clientY - canvas.offsetTop;
+}
+
+// The following functions toggle the flag to start
+// and stop drawing
+function startPainting(event){
+paint = true;
+getPosition(event);
+}
+function stopPainting(){
+paint = false;
+}
+
+function start_pen(){
+	pen=true;
+}
+
+function start_eraser(){
+	pen=false;
+}
+
+function sketch(event){
+if (!paint) return;
+ctx.beginPath();
+	
+ctx.lineWidth = 5;
+
+// Sets the end of the lines drawn
+// to a round shape.
+ctx.lineCap = 'round';
+if(pen==true){
+ctx.strokeStyle = 'black';
+}
+else{
+	ctx.lineWidth = 35;
+
+	ctx.strokeStyle = 'rgb(255,255,255)';
+}
+// The cursor to start drawing
+// moves to this coordinate
+ctx.moveTo(coord.x, coord.y);
+
+// The position of the cursor
+// gets updated as we move the
+// mouse around.
+getPosition(event);
+
+// A line is traced from start
+// coordinate to this coordinate
+ctx.lineTo(coord.x , coord.y);
+	
+// Draws the line.
+ctx.stroke();
+}
+function erase(){
+const context = canvas.getContext('2d');
+console.log(context.canvas.width)
+ctx.fillStyle = "rgb(255,255,255)";
+context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+ctx.fillStyle = "rgb(255,255,255)";
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+function download(){
+  var link = document.getElementById('link');
+  link.setAttribute('download', 'test20.png');
+  link.setAttribute('href', canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"));
+  link.click();
+}
+function submit_pixels() {
+    const canvas = document.querySelector('#canvas');
+    //print(canvas.toDataURL("image/png"))
+    document.getElementById('data1').value=canvas.toDataURL("image/png");
+    console.log(document.getElementById('data1'));
+    //$('form input[name=width]').val(canvas.width);
+    //$('form input[name=height]').val(canvas.height);
+    document.getElementById("myform").submit();
+
+    //document.forms[0].submit();
+
+}
+function predict() {
+	const canvasD1 = document.querySelector('canvas');
+	const base64CanvasD1 = canvasD1.toDataURL('image/png');
+	const token= $('input[name="csrfmiddlewaretoken"]').attr('value');
+	
+	console.log(token)
+	const data = {
+		'csrfmiddlewaretoken':token,
+	  operation: base64CanvasD1,
+	}
+
+	$.ajax({
+	  url: '/predict',
+	  type:'POST',
+	  data: {
+	  operation: base64CanvasD1,
+	  'csrfmiddlewaretoken':token,
+	},
+	}).done(function(data) {
+		console.log("hello")
+		//let data = JSON.parse(data);
+		//console.log(result)
+		$('#operation-container').html(data.eqt);
+		$('#solution-container').html(data.ans);
+	}).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+		alert("Please enter a valid expression...");
+	})
+}
+</script>
+</html>
